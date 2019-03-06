@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>{{ title }}</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
     {% include 'includes/js-required-header.twig' %}
-  </head>
-  <body>
-    {% include 'auth/form_register.twig' %}
-    {% include 'auth/form_autorization.twig' %}
-    {% block body %}{% endblock  body%}
-  </body>
+</head>
+<body>
+{% block body %}{% endblock %}
+</body>
 </html>

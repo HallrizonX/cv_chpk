@@ -6,20 +6,6 @@ const router = require('express').Router();
 const auth = require('../auth');
 const Users = mongoose.model('Users');
 const Audit = require('../../utils/Audit');
-/*
-New users
-POST -> http://127.0.0.1:3000/api/users
-application/json
-{
-  "user": {
-    "email": "fokkiminkov@gmail.com",
-    "password": "rombik99"
-  }
-}
-
-GET -> http://127.0.0.1:3000/api/users/current
-Authorization : Token <token>
- */
 
 
 //POST new user route (optional, everyone has access)
@@ -28,12 +14,15 @@ router.post('/', auth.optional, async (req, res, next) => {
 
     let audit = await Audit.check(user);
     if (!audit.success) {
-        return res.status(422).json({errors: audit.msg});
+        return res.json({errors: audit.msg});
     }
 
     const finalUser = new Users({
         email: user.email,
         password: user.password,
+        name: user.name,
+        surname: user.surname,
+        phone: user.phone,
         access: null
     });
 
@@ -67,6 +56,9 @@ router.post('/login', auth.optional, (req, res, next) => {
 //GET current route (required, only authenticated users have access)
 router.get('/current', auth.required, async (req, res, next) => {
     const {payload: {id}} = req;
+
+    console.log(req.payload);
+
     let user = await Users.findById(id);
 
     if (!user)

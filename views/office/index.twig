@@ -1,0 +1,14 @@
+{% extends 'office/layout.twig' %}
+
+{% block body %}
+    <a href="/"> <- Back</a>
+    <h1>Office</h1>
+
+    <h5>{{ user.email }}</h5>
+    <h5>{{ user.name }}</h5>
+    <h5>{{ user.surname }}</h5>
+    <h5>{{ user.phone }}</h5>
+
+    <h5>{{ user.access }}</h5>
+
+{% endblock body %}

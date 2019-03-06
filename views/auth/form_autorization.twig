@@ -1,0 +1,41 @@
+<div id="auth-form">
+    <h1>Авторизація</h1>
+    email<input type="email" name="email" class="auth-email"><br>
+    password<input type="password" name="password" class="auth-password"><br>
+    <button id="auth-action">Авторизація</button>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        // Registration
+        $('body').on('click', '#auth-action', function (e) {
+            e.preventDefault();
+
+            var data = {
+                "user": {
+                    "email": $('.auth-email').val(),
+                    "password": $('.auth-password').val(),
+                }
+            };
+
+            $.ajax({
+                type: "POST",
+                url: 'api/users/login',
+                dataType: 'json', // I was pretty sure this would do the trick
+                data: JSON.stringify(data),
+                processData: false,
+                contentType: "application/json; charset=UTF-8",
+            }).done(function (result) {
+                console.log(result);
+                if (result.user) {
+                    setCookie('token', 'Token '+result.user.token, {expires: 3600 * 24 * 7});
+                    window.location.href = '/office/'
+                } else {
+
+                }
+            });
+
+        })
+
+    });
+</script>

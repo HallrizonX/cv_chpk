@@ -41,8 +41,8 @@ require('./models/Users');
 require('./config/passport');
 
 app.use(require('./routes'));
-
-
+app.use(require('./routes/home'));
+app.use(require('./routes/office'));
 //--------------------------------------------------------------------------------------------------------------------//
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -9,6 +9,9 @@ const UsersSchema = new Schema({
     hash: String,
     salt: String,
     access: String,
+    name: String,
+    surname: String,
+    phone: String,
 });
 
 const FilesSchema = Schema({
@@ -44,6 +47,9 @@ UsersSchema.methods.toAuthJSON = function() {
         email: this.email,
         token: this.generateJWT(),
         access: this.access,
+        name: this.name,
+        surname: this.surname,
+        phone: this.phone
     };
 };
 

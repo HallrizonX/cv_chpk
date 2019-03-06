@@ -1,7 +1,16 @@
-{% extends 'layout.twig' %}
-
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ title }}</title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  {% include 'includes/js-required-header.twig' %}
+</head>
+<body>
 {% block body %}
   <h1>{{message}}</h1>
   <h2>{{error.status}}</h2>
   <pre>{{error.stack}}</pre>
 {% endblock %}
+
+</body>
+</html>

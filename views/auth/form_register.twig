@@ -1,0 +1,48 @@
+<div id="register-form">
+    <h1>Реєстрація</h1>
+    email<input type="email" name="email" class="register-email"><br>
+    password<input type="password" name="password" class="register-password"><br>
+    name<input type="text" name="name" class="register-name"><br>
+    surname<input type="text" name="surname" class="register-surname"><br>
+    phone<input type="text" name="phone" class="register-phone"><br>
+
+    <button id="register-action">Зареєструватися</button>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        // Registration
+        $('body').on('click', '#register-action', function (e) {
+            e.preventDefault();
+
+            var data = {
+                "user": {
+                    "email": $('.register-email').val(),
+                    "password": $('.register-password').val(),
+                    "name": $('.register-name').val(),
+                    "surname": $('.register-surname').val(),
+                    "phone": $('.register-phone').val(),
+                }
+            };
+
+            $.ajax({
+                type: "POST",
+                url: 'api/users/',
+                dataType: 'json', // I was pretty sure this would do the trick
+                data: JSON.stringify(data),
+                processData: false,
+                contentType: "application/json; charset=UTF-8",
+            }).done(function (result) {
+                console.log(result);
+                if (result.user) {
+                    setCookie('token', 'Token '+result.user.token, {expires: 3600 * 24 * 7});
+                    window.location.href = '/office/'
+                } else {
+
+                }
+            });
+
+        })
+
+    });
+</script>
