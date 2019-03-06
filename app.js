@@ -5,7 +5,8 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const cors = require('cors');
+//const cors = require('cors');
+const fileUpload = require('express-fileupload');
 const mongoose = require('mongoose');
 const bluebird = require('bluebird');
 const logger = require('morgan');
@@ -27,6 +28,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(session({ secret: 'passport-tutorial', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
 
 app.use(cookieParser());
+
+app.use(fileUpload({
+  limits: { fileSize: 50 * 1024 * 1024 },
+  useTempFiles : true,
+  tempFileDir : '/public/media/files/'
+}));
 //----------------------------------------------------------------------------------------------------------------------
 mongoose.set('useNewUrlParser', true );
 mongoose.connect(process.env.MONGO_DB, err =>{
@@ -41,8 +48,7 @@ require('./models/Users');
 require('./config/passport');
 
 app.use(require('./routes'));
-app.use(require('./routes/home'));
-app.use(require('./routes/office'));
+
 //--------------------------------------------------------------------------------------------------------------------//
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
