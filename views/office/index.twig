@@ -12,9 +12,10 @@
 
     <form ref='uploadForm'
           id='uploadForm'
-          action='http://localhost:8000/upload'
+          action='/api/files/'
           method='post'
           encType="multipart/form-data">
+
         <input type="file" name="sampleFile" />
         <input type='submit' value='Upload!' />
     </form>
