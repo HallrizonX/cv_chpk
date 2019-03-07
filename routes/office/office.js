@@ -1,14 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
+const router = require('express').Router();
+
 const auth = require('../auth');
-const Users = mongoose.model('Users');
+const User = require('../../utils/User');
 
 
 router.get('/', auth.required, async (req, res, next) => {
-    if (req.cookies.token) {
-        const {payload: {id}} = req;
-        let user = await Users.findById(id);
+    if (req.cookies.token || req.headers.authorization) {
+        const user = await User.getByRequest(req);
 
         if (!user)
             return res.render('office/notToken.twig', {});
@@ -18,7 +16,6 @@ router.get('/', auth.required, async (req, res, next) => {
 
     return res.render('office/notToken.twig', {});
 });
-
 
 
 module.exports = router;

@@ -8,7 +8,7 @@ const Users = mongoose.model('Users');
 const Audit = require('../../utils/Audit');
 
 
-//POST new user route (optional, everyone has access)
+//POST registration new user (optional, everyone has access)
 router.post('/', auth.optional, async (req, res, next) => {
     const {body: {user}} = req;
 
@@ -34,7 +34,7 @@ router.post('/', auth.optional, async (req, res, next) => {
     })
 });
 
-//POST login route (optional, everyone has access)
+//POST authorization (optional, everyone has access)
 router.post('/login', auth.optional, (req, res, next) => {
     const {body: {user}} = req;
 
@@ -53,11 +53,10 @@ router.post('/login', auth.optional, (req, res, next) => {
     })(req, res, next);
 });
 
-//GET current route (required, only authenticated users have access)
+//GET current user (required, only authenticated users have access)
 router.get('/current', auth.required, async (req, res, next) => {
-    const {payload: {id}} = req;
 
-    console.log(req.payload);
+    const {payload: {id}} = req;
 
     let user = await Users.findById(id);
 

@@ -35,7 +35,7 @@ window.setCookie = function setCookie(name, value, options) {
     document.cookie = updatedCookie;
 };
 
-window.deleteCookie =  function deleteCookie(name) {
+window.deleteCookie = function deleteCookie(name) {
     setCookie(name, "", {
         expires: -1
     })

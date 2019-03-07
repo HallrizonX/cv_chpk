@@ -1,0 +1,29 @@
+<form method="POST" enctype="multipart/form-data" id="fileUploadForm">
+    <label for="sampleFile" class="custom-file-upload">
+        <input type="file" name="sampleFile" id="sampleFile"/>+
+    </label>
+</form>
+
+<script type="text/javascript" charset="UTF-8">
+    $("#sampleFile").on('change', function () {
+        var data = new FormData();
+        data.append('postID', 1);
+        data.append('sampleFile', $("#sampleFile")[0].files[0]);
+        $.ajax({
+            type: "POST",
+            enctype: 'multipart/form-data',
+            url: "/api/files/",
+            data: data,
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 600000,
+            success: function (data) {
+                $("#fileUploadForm").prepend('<div class="img-container"><img src="' + data.path + '" alt=""></div>');
+            },
+            error: function (e) {
+                console.log("ERROR : ", e);
+            }
+        });
+    });
+</script>

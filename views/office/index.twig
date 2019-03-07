@@ -10,15 +10,6 @@
     <h5>{{ user.phone }}</h5>
     <h5>{{ user.access }}</h5>
 
-    <form ref='uploadForm'
-          id='uploadForm'
-          action='/api/files/'
-          method='post'
-          encType="multipart/form-data"
-    >
-
-        <input type="file" name="sampleFile" />
-        <input type='submit' value='Upload!' />
-    </form>
+    {% include 'includes/teacher-add-files.twig' %}
 
 {% endblock body %}
