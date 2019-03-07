@@ -1,5 +1,6 @@
 # Logs
 node_modules
+uploads
 .idea
 logs
 *.log

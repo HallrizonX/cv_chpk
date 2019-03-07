@@ -11,6 +11,9 @@ const mongoose = require('mongoose');
 const bluebird = require('bluebird');
 const logger = require('morgan');
 
+const multer = require('multer'); //new work with files
+
+
 const app = express();
 mongoose.Promise = bluebird;
 
@@ -29,11 +32,7 @@ app.use(session({ secret: 'passport-tutorial', cookie: { maxAge: 60000 }, resave
 
 app.use(cookieParser());
 
-app.use(fileUpload({
-  limits: { fileSize: 50 * 1024 * 1024 },
-  useTempFiles : true,
-  tempFileDir : '/public/media/files/'
-}));
+app.use(fileUpload()); // old
 //----------------------------------------------------------------------------------------------------------------------
 mongoose.set('useNewUrlParser', true );
 mongoose.connect(process.env.MONGO_DB, err =>{
@@ -46,8 +45,12 @@ mongoose.set('debug', true);
 
 require('./models/Users');
 require('./config/passport');
-
 app.use(require('./routes'));
+
+
+app.post('/uploads/images/', (req, res)=>{
+
+});
 
 //--------------------------------------------------------------------------------------------------------------------//
 // catch 404 and forward to error handler

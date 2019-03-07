@@ -1,5 +1,39 @@
 {% extends 'layout.twig' %}
 
 {% block body %}
-  <a href="/office/">OFFICE</a>
+    <a href="/office/">OFFICE</a>
+
+    <form method="POST" enctype="multipart/form-data" id="file_info">
+
+        <input type="file" name="file" id="file" required/>
+
+        <button class="upload-button">Завантажити</button>
+    </form>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Upload
+            $("#file_info").on('submit', function (e) {
+                e.preventDefault();
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/uploads/images/',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        console.log(data);
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    }
+                })
+
+            })
+        });
+    </script>
 {% endblock body %}
+
