@@ -3,10 +3,7 @@ const router = express.Router();
 const Token = require('../../utils/Token');
 
 router.get('/', (req, res) => {
-    let isAuth = false;
-    if (Token.getToken(req)) {
-        isAuth = true;
-    }
+    const isAuth = !!Token.getToken(req);
 
     return res.render('index.twig', {
         'isAuth': isAuth

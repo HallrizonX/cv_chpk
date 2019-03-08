@@ -38,7 +38,6 @@ router.post('/', auth.optional, async (req, res, next) => {
 router.post('/login', auth.optional, (req, res, next) => {
     const {body: {user}} = req;
 
-
     // Authorization
     return passport.authenticate('local', {session: false}, async (err, passportUser, info) => {
         if (err) return next(err);
@@ -51,6 +50,17 @@ router.post('/login', auth.optional, (req, res, next) => {
 
         return next(info)
     })(req, res, next);
+});
+
+//POST logout (optional, everyone has access)
+router.get('/logout', auth.optional, (req, res, next) => {
+    const {headers: {authorization}} = req;
+
+    req.headers.authorization = "";
+    res.clearCookie('token');
+    console.log(authorization);
+    // Authorization
+   res.redirect('/');
 });
 
 //GET current user (required, only authenticated users have access)

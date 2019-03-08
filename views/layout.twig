@@ -3,14 +3,13 @@
 <head>
     <title>Головна</title>
     {% include 'includes/css-required-header.twig' %}
-    <link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
     {% include 'includes/js-required-header.twig' %}
 </head>
 <body>
+{% include 'includes/header.twig' %}
 
 {% block body %}{% endblock  body %}
 
 {% include 'includes/js-required-footer.twig' %}
-<script src="/javascripts/home/main.js" type="text/javascript"></script>
 </body>
 </html>
