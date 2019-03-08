@@ -1,41 +1,118 @@
-<div id="auth-form">
-    <h1>Авторизація</h1>
-    email<input type="email" name="email" class="auth-email"><br>
-    password<input type="password" name="password" class="auth-password"><br>
-    <button id="auth-action">Авторизація</button>
+<div id="test1" class="col s12">
+    <br><br>
+    <div class="row" >
+        <form class="col s12" id="auth-form">
+            <div class="row">
+                <div class="input-field col s8 offset-s2">
+                    <i class="material-icons prefix">email</i>
+                    <input id="email" name="email" type="text" class="validate auth-email">
+                    <label for="email">Email</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s8 offset-s2">
+                    <i class="material-icons prefix">security</i>
+                    <input id="password" type="password" class="validate auth-password">
+                    <label for="password">Пароль</label>
+                </div>
+            </div>
+            <div class="row">
+                <button class=" col s8 offset-s2 waves-effect waves-light btn" id="auth-action">Авторизація</button>
+            </div>
+        </form>
+    </div>
 </div>
+
 <script type="text/javascript">
 
     $(document).ready(function () {
-        // Registration
+        var formValid = {
+            'email': false,
+            'password': false,
+        };
+
+        // Email audit
+        $('body').on('input', '.auth-email', function () {
+            if (emailValid($(this).val())){
+                $(this).removeClass('err-valid-data');
+                formValid.email = true;
+            }else{
+                $(this).addClass('err-valid-data');
+                formValid.email = false;
+            }
+        });
+
+        // password audit
+        $('body').on('input', '.auth-password', function () {
+            if ($(this).val().length > 6){
+                $(this).removeClass('err-valid-data');
+                formValid.password = true;
+            }else{
+                $(this).addClass('err-valid-data');
+                formValid.password = false;
+            }
+        });
+
+        // Authorization
         $('body').on('click', '#auth-action', function (e) {
             e.preventDefault();
+            if (formValid.password && formValid.email) {
+                var data = {
+                    "user": {
+                        "email": $('.auth-email').val(),
+                        "password": $('.auth-password').val(),
+                    }
+                };
 
-            var data = {
-                "user": {
-                    "email": $('.auth-email').val(),
-                    "password": $('.auth-password').val(),
-                }
-            };
+                $.ajax({
+                    type: "POST",
+                    url: 'api/users/login',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    processData: false,
+                    contentType: "application/json; charset=UTF-8",
+                }).done(function (result) {
+                    console.log(result);
+                    if (result.user) {
+                        setCookie('token', 'Token ' + result.user.token, {expires: 3600 * 24 * 7});
+                        window.location.href = '/office/'
+                    } else {
 
-            $.ajax({
-                type: "POST",
-                url: 'api/users/login',
-                dataType: 'json',
-                data: JSON.stringify(data),
-                processData: false,
-                contentType: "application/json; charset=UTF-8",
-            }).done(function (result) {
-                console.log(result);
-                if (result.user) {
-                    setCookie('token', 'Token '+result.user.token, {expires: 3600 * 24 * 7});
-                    window.location.href = '/office/'
-                } else {
+                    }
+                }).catch(function (result) {
+                    M.toast({html: 'Невірний email або пароль', classes: 'rounded'});
+                })
+            }else{
+                if (!formValid.email) M.toast({html: 'Введіть коректну пошту', classes: 'rounded'});
+                if (!formValid.password) M.toast({html: 'Введіть коректний пароль', classes: 'rounded'});
+            }
+        });
 
-                }
-            });
+        var tester = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
 
-        })
+        function emailValid(email)
+        {
+            if (!email)
+                return false;
+
+            if(email.length>254)
+                return false;
+
+            var valid = tester.test(email);
+            if(!valid)
+                return false;
+
+            // Further checking of some things regex can't handle
+            var parts = email.split("@");
+            if(parts[0].length>64)
+                return false;
+
+            var domainParts = parts[1].split(".");
+            if(domainParts.some(function(part) { return part.length>63; }))
+                return false;
+
+            return true;
+        }
 
     });
 </script>

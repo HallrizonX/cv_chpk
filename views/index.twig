@@ -1,6 +1,75 @@
 {% extends 'layout.twig' %}
 
 {% block body %}
-    <a href="/office/">OFFICE</a>
+    <header>
+        <nav>
+            <div class="nav-wrapper">
+                <a href="/" style="width: 100px" class="brand-logo center-align">ЧПК</a>
+                <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <ul class="right hide-on-med-and-down">
+                    <li>
+                        <nav class="head-search">
+                            <div class="nav-wrapper ">
+                                <div class="input-field">
+                                    <input id="search" class="head-search-field" type="search" required
+                                           style="border-left: 1px solid whitesmoke;
+                                                  border-right: 1px solid whitesmoke;
+                                                  border-bottom: 1px solid whitesmoke;
+                                                  border-radius: 2px;">
+                                    <label class="label-icon" for="search" ><i class="material-icons">search</i></label>
+                                    <i class="material-icons">close</i>
+                                </div>
+                            </div>
+                        </nav>
+                    </li>
+                    {% if isAuth %}
+                        <li class="tooltipped" data-position="bottom" data-tooltip="Кабінет">
+                            <a href="/office/" class="head-li"><i class=" medium material-icons">desktop_mac</i></a>
+                        </li>
+                    {% endif %}
+                    {% if not isAuth %}
+                    <li class="tooltipped" data-position="bottom" data-tooltip="Авторизація">
+                        <a href="#modal1" class="pd20 modal-trigger modal-click-form"><i class=" medium material-icons" style="font-size: 30px;">account_box</i></a>
+                    </li>
+                    {% endif %}
+                    <li style="margin-right: 10px" class="tooltipped" data-position="bottom" data-tooltip="Вихід" id="logout" onclick="deleteCookie('token'); location.href = '/'">
+                        <a href="" class="pd20"><i class=" medium material-icons" style="font-size: 30px;">exit_to_app</i></a></li>
+                </ul>
+            </div>
+        </nav>
+        <ul class="sidenav" id="mobile-demo">
+            {% if isAuth %}
+                <li><a href="/office/">Кабінет</a></li>
+            {% endif %}
+            <li><a href="badges.html">Components</a></li>
+            <li><a href="collapsible.html">Javascript</a></li>
+            <li><a href="mobile.html">Mobile</a></li>
+        </ul>
+    </header>
+
+
+    <!-- Modal Structure -->
+    <div id="modal1" class="modal" style="width: 40%; padding: 0">
+        <div class="modal-content" style="padding: 0">
+            <div class="row">
+                <div class="col s12">
+                    <ul class="tabs">
+                        <li class="tab col s6"><a  class="active" href="#test1">Авторизація</a></li>
+                        <li class="tab col s6"><a  href="#test2">Реєстрація</a></li>
+                    </ul>
+                </div>
+
+                <div id="test1" class="col s12">
+                    {% include 'auth/form_autorization.twig' %}
+                </div>
+
+                <div id="test2" class="col s12">
+                    {% include 'auth/form_register.twig' %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 {% endblock body %}
 

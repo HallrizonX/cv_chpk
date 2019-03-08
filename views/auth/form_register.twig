@@ -1,48 +1,182 @@
-<div id="register-form">
-    <h1>Реєстрація</h1>
-    email<input type="email" name="email" class="register-email"><br>
-    password<input type="password" name="password" class="register-password"><br>
-    name<input type="text" name="name" class="register-name"><br>
-    surname<input type="text" name="surname" class="register-surname"><br>
-    phone<input type="text" name="phone" class="register-phone"><br>
+<div class="row">
+    <form class="col s12" id="auth-form">
+        <div class="row">
+            <div class="input-field col s8 offset-s2">
+                <i class="material-icons prefix">account_circle</i>
+                <input id="name" type="text" class="validate register-name">
+                <label for="name">Ім'я<b>*</b></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s8 offset-s2">
+                <i class="material-icons prefix">assignment</i>
+                <input id="surname" type="text" class="validate register-surname">
+                <label for="surname">Прізвище<b>*</b></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s8 offset-s2">
+                <i class="material-icons prefix">email</i>
+                <input id="email" name="email" type="text" class="validate register-email">
+                <label for="email">Email <b>*</b></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s8 offset-s2">
+                <i class="material-icons prefix">phone</i>
+                <input id="phone" type="text" class="validate register-phone">
+                <label for="phone">Телефон</label>
+            </div>
+        </div>
 
-    <button id="register-action">Зареєструватися</button>
+        <div class="row">
+            <div class="input-field col s8 offset-s2">
+                <i class="material-icons prefix">security</i>
+                <input id="password" type="password" class="validate register-password">
+                <label for="password">Пароль <b>*</b></label>
+            </div>
+        </div>
+        <div class="row">
+            <button class=" col s8 offset-s2 waves-effect waves-light btn" id="register-action">Зареєструватися</button>
+        </div>
+    </form>
 </div>
 <script type="text/javascript">
 
     $(document).ready(function () {
+        var formValid = {
+            'email': false,
+            'password': false,
+            'name': false,
+            'surname': false,
+            'phone': true,
+        };
+
+        // Email audit
+        $('body').on('input', '.register-email', function () {
+            if (emailValid($(this).val())) {
+                $(this).removeClass('err-valid-data');
+                formValid.email = true;
+            } else {
+                $(this).addClass('err-valid-data');
+                formValid.email = false;
+            }
+        });
+
+        // password audit
+        $('body').on('input', '.register-password', function () {
+            if ($(this).val().length > 6) {
+                $(this).removeClass('err-valid-data');
+                formValid.password = true;
+            } else {
+                $(this).addClass('err-valid-data');
+                formValid.password = false;
+            }
+        });
+
+
+        // name audit
+        $('body').on('input', '.register-name', function () {
+            if ( nametester.test($(this).val()) ) {
+                $(this).removeClass('err-valid-data');
+                formValid.name = true;
+            } else {
+                $(this).addClass('err-valid-data');
+                formValid.name = false;
+            }
+        });
+
+        // surname audit
+        $('body').on('input', '.register-surname', function () {
+            if ( nametester.test($(this).val()) ) {
+                $(this).removeClass('err-valid-data');
+                formValid.surname = true;
+            } else {
+                $(this).addClass('err-valid-data');
+                formValid.surname = false;
+            }
+        });
+
+        // phone audit
+        $('body').on('input', '.register-phone', function () {
+            if (phonetester.test($(this).val())) {
+                $(this).removeClass('err-valid-data');
+                formValid.phone = true;
+            } else {
+                $(this).addClass('err-valid-data');
+                formValid.phone = false;
+            }
+
+        });
+
         // Registration
         $('body').on('click', '#register-action', function (e) {
             e.preventDefault();
+            if ( formValid.password && formValid.email && formValid.phone && formValid.name && formValid.surname ) {
+                var data = {
+                    "user": {
+                        "email": $('.register-email').val(),
+                        "password": $('.register-password').val(),
+                        "name": $('.register-name').val(),
+                        "surname": $('.register-surname').val(),
+                        "phone": $('.register-phone').val(),
+                    }
+                };
 
-            var data = {
-                "user": {
-                    "email": $('.register-email').val(),
-                    "password": $('.register-password').val(),
-                    "name": $('.register-name').val(),
-                    "surname": $('.register-surname').val(),
-                    "phone": $('.register-phone').val(),
-                }
-            };
+                $.ajax({
+                    type: "POST",
+                    url: 'api/users/',
+                    dataType: 'json', // I was pretty sure this would do the trick
+                    data: JSON.stringify(data),
+                    processData: false,
+                    contentType: "application/json; charset=UTF-8",
+                }).done(function (result) {
+                    if (result.user) {
+                        setCookie('token', 'Token ' + result.user.token, {expires: 3600 * 24 * 7});
+                        window.location.href = '/office/'
+                    } else {
+                        result.errors.forEach(function (msg, i) {
+                            M.toast({html: msg, classes: 'rounded'});
+                        });
+                    }
+                });
+            } else {
+                if (!formValid.surname) M.toast({html: 'Введіть коректно ваше прізвище', classes: 'rounded'});
+                if (!formValid.name) M.toast({html: 'Введіть коректно ваше ім\'я', classes: 'rounded'});
+                if (!formValid.email) M.toast({html: 'Введіть коректну пошту', classes: 'rounded'});
+                if (!formValid.password) M.toast({html: 'Введіть коректний пароль', classes: 'rounded'});
+                if (!formValid.phone) M.toast({html: 'Введіть ваш справжній номер телефона', classes: 'rounded'});
+            }
+        });
 
-            $.ajax({
-                type: "POST",
-                url: 'api/users/',
-                dataType: 'json', // I was pretty sure this would do the trick
-                data: JSON.stringify(data),
-                processData: false,
-                contentType: "application/json; charset=UTF-8",
-            }).done(function (result) {
-                console.log(result);
-                if (result.user) {
-                    setCookie('token', 'Token '+result.user.token, {expires: 3600 * 24 * 7});
-                    window.location.href = '/office/'
-                } else {
+        var nametester = /^\S[a-zA-Z]*$/;
+        var phonetester = /^(\+380|380|0)\d{3}\d{2}\d{2}\d{2}$/;
+        var tester = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
 
-                }
-            });
+        function emailValid(email) {
+            if (!email)
+                return false;
 
-        })
+            if (email.length > 254)
+                return false;
+
+            var valid = tester.test(email);
+            if (!valid)
+                return false;
+
+            // Further checking of some things regex can't handle
+            var parts = email.split("@");
+            if (parts[0].length > 64)
+                return false;
+
+            var domainParts = parts[1].split(".");
+            if (domainParts.some(function (part) {
+                return part.length > 63;
+            }))
+                return false;
+
+            return true;
+        }
 
     });
 </script>

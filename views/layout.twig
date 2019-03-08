@@ -1,13 +1,16 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>{{ title }}</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+<html lang="uk">
+<head>
+    <title>Головна</title>
+    {% include 'includes/css-required-header.twig' %}
+    <link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
     {% include 'includes/js-required-header.twig' %}
-  </head>
-  <body>
-    {% include 'auth/form_register.twig' %}
-    {% include 'auth/form_autorization.twig' %}
-    {% block body %}{% endblock  body%}
-  </body>
+</head>
+<body>
+
+{% block body %}{% endblock  body %}
+
+{% include 'includes/js-required-footer.twig' %}
+<script src="/javascripts/home/main.js" type="text/javascript"></script>
+</body>
 </html>
