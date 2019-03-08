@@ -12,12 +12,9 @@ const UsersSchema = new Schema({
     name: String,
     surname: String,
     phone: String,
+    //filesID: [],
 });
 
-const FilesSchema = Schema({
-    author: { type: Schema.Types.ObjectId, ref: 'Users' },
-    title: String,
-});
 
 UsersSchema.methods.setPassword = function (password) {
     this.salt = crypto.randomBytes(16).toString('hex');
@@ -55,4 +52,3 @@ UsersSchema.methods.toAuthJSON = function() {
 
 
 mongoose.model('Users', UsersSchema);
-mongoose.model('Files', FilesSchema);
