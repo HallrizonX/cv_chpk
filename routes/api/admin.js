@@ -8,13 +8,16 @@ const Subjects = mongoose.model('Subjects');
 const Audit = require('../../utils/Audit');
 
 //--------------------------------------------- GROUP ----------------------------------------------------------------->
-router.get('/user/:id', auth.optional, async (req, res, next) => {
+router.get('/users/', auth.optional, async (req, res, next) => {
+    const users = await Users.find({});
+    res.json(users)
+});
+
+router.get('/users/:id', auth.optional, async (req, res, next) => {
     const { params: {id} } = req;
     const user = await Users.findById(id);
-
     if (!user)
         return next({status: 401, message: 'Токен невірний'});
-
     let user_subjects;
     try {
         user_subjects = await Subjects.find({_id: user.subjectsID});
@@ -22,10 +25,54 @@ router.get('/user/:id', auth.optional, async (req, res, next) => {
         user_subjects = null;
     }
 
-    res.render('admin/includes/ajax-edit-modal.twig', {user: user, subjects: user_subjects});
+    res.json({user: user, subjects: user_subjects});
 });
 
-router.delete('/user/:id/subject', auth.optional, async (req, res, next) => {
+router.patch('/users/:id', auth.optional, async (req, res, next) => {
+    const { params: {id} } = req;
+    const user = await Users.findById(id);
+    if (!user)
+        return next({status: 401, message: 'Токен невірний'});
+
+    /* Logic */
+
+    res.json({"success": true});
+});
+
+router.delete('/users/:id/subjects/:sub_id', auth.optional, async (req, res, next) => {
+    const { params: {id, sub_id} } = req;
+    const user = await Users.findById(id);
+    if (!user)
+        return next({status: 401, message: 'Токен невірний'});
+
+    try {
+        await user.removeSubjectByID(sub_id);
+        await user.save();
+    }catch (e) {
+        next()
+    }
+
+    res.json({"success": true});
+});
+
+router.put('/users/:id/subjects/:sub_id', auth.optional, async (req, res, next) => {
+    const { params: {id, sub_id} } = req;
+    const user = await Users.findById(id);
+    if (!user)
+        return next({status: 401, message: 'Токен невірний'});
+
+    try {
+        await user.addSubjectByID(sub_id);
+        await user.save();
+    }catch (e) {
+        next()
+    }
+
+    res.json({"success": true});
+});
+
+
+router.delete('/users/:id/subject', auth.optional, async (req, res, next) => {
     const {body: {subject_id}, params: {id}} = req;
 
     let user = await Users.findById(id);
@@ -40,7 +87,7 @@ router.delete('/user/:id/subject', auth.optional, async (req, res, next) => {
     next({status: 200});
 });
 
-router.patch('/user/:id/subject', auth.optional, async (req, res, next) => {
+router.patch('/users/:id/subject', auth.optional, async (req, res, next) => {
     const {body: {subject_id}, params: {id}} = req;
 
     let user = await Users.findById(id);

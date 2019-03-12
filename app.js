@@ -4,7 +4,7 @@ const createError = require('http-errors');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-//const cors = require('cors');
+const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const logger = require('morgan');
 const path = require('path');
@@ -14,7 +14,7 @@ require('./config/db');
 //----------------------------------------------------------------------------------------------------------------------
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'twig');
-
+app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', (express.static(path.join(__dirname, 'uploads'))));
 
