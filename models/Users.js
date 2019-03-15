@@ -37,7 +37,9 @@ UsersSchema.methods.setSurname = function (surname) {
 };
 // Add new subject into user
 UsersSchema.methods.addSubjectByID = function (subjectID) {
-    this.subjectsID.push(subjectID);
+    if (this.subjectsID.find(ele => {return ele === subjectID}) === undefined) {
+        this.subjectsID.push(subjectID);
+    }
 };
 // Remove subject from user
 UsersSchema.methods.removeSubjectByID = function (subjectID) {

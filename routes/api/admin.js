@@ -28,19 +28,58 @@ router.get('/users/:id', auth.optional, async (req, res, next) => {
     res.json({user: user, subjects: user_subjects});
 });
 
+router.delete('/users/:id', auth.optional, async (req, res, next) => {
+    const { params: {id} } = req;
+    const user = await Users.findById(id);
+    await user.delete();
+
+    res.json({"sucess": true, 'userID': id});
+});
+
 router.patch('/users/:id', auth.optional, async (req, res, next) => {
     const { params: {id} } = req;
     const user = await Users.findById(id);
     if (!user)
         return next({status: 401, message: 'Токен невірний'});
 
-    /* Logic */
+    if (req.body.name){
+        user.setName(req.body.name);
+        user.save();
+        res.json({"success": true, "change": 'name'});
+    }
+    if (req.body.surname){
+        user.setSurname(req.body.surname);
+        user.save();
+        res.json({"success": true, "change": 'surname'});
+    }
+    if (req.body.phone){
+        user.setPhone(req.body.phone);
+        user.save();
+        res.json({"success": true, "change": 'phone'});
+    }
+    if (req.body.email){
+        user.setEmail(req.body.email);
+        user.save();
+        res.json({"success": true, "change": 'email'});
+    }
+    if (req.body.access){
+        user.setAccess(req.body.access);
+        user.save();
+        res.json({"success": true, "change": 'access'});
+    }
+    if (req.body.password){
+        user.setPassword(req.body.password);
+        user.save();
+        res.json({"success": true, "change": 'password'});
+    }
 
     res.json({"success": true});
 });
 
+
 router.delete('/users/:id/subjects/:sub_id', auth.optional, async (req, res, next) => {
     const { params: {id, sub_id} } = req;
+
     const user = await Users.findById(id);
     if (!user)
         return next({status: 401, message: 'Токен невірний'});
@@ -52,7 +91,9 @@ router.delete('/users/:id/subjects/:sub_id', auth.optional, async (req, res, nex
         next()
     }
 
-    res.json({"success": true});
+    const user_subjects = await Subjects.find({_id: user.subjectsID});
+    res.json({"success": true, subjects: user_subjects});
+
 });
 
 router.put('/users/:id/subjects/:sub_id', auth.optional, async (req, res, next) => {
@@ -67,44 +108,13 @@ router.put('/users/:id/subjects/:sub_id', auth.optional, async (req, res, next) 
     }catch (e) {
         next()
     }
-
-    res.json({"success": true});
-});
-
-
-router.delete('/users/:id/subject', auth.optional, async (req, res, next) => {
-    const {body: {subject_id}, params: {id}} = req;
-
-    let user = await Users.findById(id);
-
-    await user.updateOne({$pull: {subjectsID: subject_id}});
-
-    user = await Users.findById(id);
-
     const user_subjects = await Subjects.find({_id: user.subjectsID});
-
-    res.status(200).render('admin/includes/ajax-edit-modal.twig', {user: user, subjects: user_subjects});
-    next({status: 200});
+    res.json({"success": true, subjects: user_subjects});
 });
 
-router.patch('/users/:id/subject', auth.optional, async (req, res, next) => {
-    const {body: {subject_id}, params: {id}} = req;
 
-    let user = await Users.findById(id);
 
-    if (!await Users.findOne({_id: id, subjectsID: subject_id}).select('subjectsID')){
-        res.status(200).json({
-            "success": false
-        });
 
-    }
-
-    await user.updateOne({$push: {subjectsID: subject_id}});
-
-    const user_subjects = await Subjects.find({_id: user.subjectsID});
-
-    res.status(200).render('admin/includes/ajax-edit-modal.twig', {user: user, subjects: user_subjects});
-});
 //--------------------------------------------- GROUP ----------------------------------------------------------------->
 //POST registration new group (optional, everyone has access)
 router.post('/group', auth.optional, async (req, res, next) => {
@@ -129,6 +139,10 @@ router.post('/group', auth.optional, async (req, res, next) => {
 
 
 //--------------------------------------------- Subject --------------------------------------------------------------->
+router.get('/subjects/', auth.optional, async (req, res, next) => {
+    res.json({subjects: await Subjects.find()});
+});
+
 router.get('/subject/:id', auth.optional, async (req, res, next) => {
     const { params: {id}} = req;
 
