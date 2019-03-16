@@ -14,14 +14,14 @@ router.get('/users/', auth.optional, async (req, res, next) => {
 });
 
 router.get('/users/:id', auth.optional, async (req, res, next) => {
-    const { params: {id} } = req;
+    const {params: {id}} = req;
     const user = await Users.findById(id);
     if (!user)
         return next({status: 401, message: 'Токен невірний'});
     let user_subjects;
     try {
         user_subjects = await Subjects.find({_id: user.subjectsID});
-    }catch (e) {
+    } catch (e) {
         user_subjects = null;
     }
 
@@ -29,7 +29,7 @@ router.get('/users/:id', auth.optional, async (req, res, next) => {
 });
 
 router.delete('/users/:id', auth.optional, async (req, res, next) => {
-    const { params: {id} } = req;
+    const {params: {id}} = req;
     const user = await Users.findById(id);
     await user.delete();
 
@@ -37,37 +37,37 @@ router.delete('/users/:id', auth.optional, async (req, res, next) => {
 });
 
 router.patch('/users/:id', auth.optional, async (req, res, next) => {
-    const { params: {id} } = req;
+    const {params: {id}} = req;
     const user = await Users.findById(id);
     if (!user)
         return next({status: 401, message: 'Токен невірний'});
 
-    if (req.body.name){
+    if (req.body.name) {
         user.setName(req.body.name);
         user.save();
         res.json({"success": true, "change": 'name'});
     }
-    if (req.body.surname){
+    if (req.body.surname) {
         user.setSurname(req.body.surname);
         user.save();
         res.json({"success": true, "change": 'surname'});
     }
-    if (req.body.phone){
+    if (req.body.phone) {
         user.setPhone(req.body.phone);
         user.save();
         res.json({"success": true, "change": 'phone'});
     }
-    if (req.body.email){
+    if (req.body.email) {
         user.setEmail(req.body.email);
         user.save();
         res.json({"success": true, "change": 'email'});
     }
-    if (req.body.access){
+    if (req.body.access) {
         user.setAccess(req.body.access);
         user.save();
         res.json({"success": true, "change": 'access'});
     }
-    if (req.body.password){
+    if (req.body.password) {
         user.setPassword(req.body.password);
         user.save();
         res.json({"success": true, "change": 'password'});
@@ -78,7 +78,7 @@ router.patch('/users/:id', auth.optional, async (req, res, next) => {
 
 
 router.delete('/users/:id/subjects/:sub_id', auth.optional, async (req, res, next) => {
-    const { params: {id, sub_id} } = req;
+    const {params: {id, sub_id}} = req;
 
     const user = await Users.findById(id);
     if (!user)
@@ -87,7 +87,7 @@ router.delete('/users/:id/subjects/:sub_id', auth.optional, async (req, res, nex
     try {
         await user.removeSubjectByID(sub_id);
         await user.save();
-    }catch (e) {
+    } catch (e) {
         next()
     }
 
@@ -97,7 +97,7 @@ router.delete('/users/:id/subjects/:sub_id', auth.optional, async (req, res, nex
 });
 
 router.put('/users/:id/subjects/:sub_id', auth.optional, async (req, res, next) => {
-    const { params: {id, sub_id} } = req;
+    const {params: {id, sub_id}} = req;
     const user = await Users.findById(id);
     if (!user)
         return next({status: 401, message: 'Токен невірний'});
@@ -105,7 +105,7 @@ router.put('/users/:id/subjects/:sub_id', auth.optional, async (req, res, next) 
     try {
         await user.addSubjectByID(sub_id);
         await user.save();
-    }catch (e) {
+    } catch (e) {
         next()
     }
     const user_subjects = await Subjects.find({_id: user.subjectsID});
@@ -113,28 +113,42 @@ router.put('/users/:id/subjects/:sub_id', auth.optional, async (req, res, next) 
 });
 
 
-
-
 //--------------------------------------------- GROUP ----------------------------------------------------------------->
-//POST registration new group (optional, everyone has access)
-router.post('/group', auth.optional, async (req, res, next) => {
-    const {body: {group}} = req;
 
-    if (await Groups.find({number: group.number}).count() > 0)
-        return res.json({
-            "success": false
+router.get('/groups', auth.optional, async (req, res, next) => {
+    res.json(await Groups.find({}).sort({number: 1}))
+});
+
+router.delete('/groups/:id', auth.optional, async (req, res, next) => {
+    const {params: {id}} = req;
+    await Groups.remove({_id: id});
+    res.json(await Groups.find({}).sort({number: 1}))
+});
+
+router.post('/groups', auth.optional, async (req, res, next) => {
+    const {body: {group}} = req;
+    console.log(group);
+    let count = await Groups.find({number: group}).count();
+    console.log(count);
+    if (count > 0) {
+        res.json({
+            "success": false,
+            "msg": "Група з таким номер вже існує"
+        })
+    } else {
+        const finalGroup = await new Groups({
+            number: group
         });
 
+        await finalGroup.save();
 
-    const finalGroup = new Groups({
-        number: group.number
-    });
+        res.json({
+            "success": true,
+            "msg": "Групу успішно створено",
+            "groups": await Groups.find({}).sort({number: 1})
+        })
+    }
 
-    await finalGroup.save();
-
-    return res.json({
-        "success": true
-    })
 });
 
 
@@ -144,7 +158,7 @@ router.get('/subjects/', auth.optional, async (req, res, next) => {
 });
 
 router.get('/subject/:id', auth.optional, async (req, res, next) => {
-    const { params: {id}} = req;
+    const {params: {id}} = req;
 
     const user = await Users.findById(id);
 
