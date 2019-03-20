@@ -127,9 +127,8 @@ router.delete('/groups/:id', auth.optional, async (req, res, next) => {
 
 router.post('/groups', auth.optional, async (req, res, next) => {
     const {body: {group}} = req;
-    console.log(group);
+
     let count = await Groups.find({number: group}).count();
-    console.log(count);
     if (count > 0) {
         res.json({
             "success": false,
@@ -168,26 +167,28 @@ router.get('/subject/:id', auth.optional, async (req, res, next) => {
 });
 
 //POST registration new group (optional, everyone has access)
-router.post('/subject', auth.optional, async (req, res, next) => {
-    const {body: {subject}} = req;
+router.post('/subject/', auth.optional, async (req, res, next) => {
+    const {body: {groupID, title}} = req;
 
-    if (await Subjects.find({group: subject.group, title: subject.title}).count() > 0)
+    if (await Subjects.find({group: groupID, title: title}).count() > 0)
         return res.json({
-            "success": false
+            "success": false,
+            "msg": "Предмет з такою назвою на групою вже зарєестровано"
         });
 
-    const group = await Groups.findOne({_id: subject.group});
+    const group = await Groups.findOne({_id: groupID});
 
     const finalSubject = await new Subjects({
         groupNumber: group.number,
-        group: subject.group,
-        title: subject.title,
+        group: groupID,
+        title: title,
     });
 
     await finalSubject.save();
 
-    return res.json({
-        "success": true
+    res.json({
+        "success": true,
+        "msg": "Предмет " + finalSubject.title+" успішно створено",
     })
 });
 module.exports = router;
