@@ -1,194 +1,38 @@
-const mongoose = require('mongoose');
 const router = require('express').Router();
-const twig = require('twig');
 const auth = require('../auth');
-const Users = mongoose.model('Users');
-const Groups = mongoose.model('Groups');
-const Subjects = mongoose.model('Subjects');
-const Audit = require('../../utils/Audit');
 
-//--------------------------------------------- GROUP ----------------------------------------------------------------->
-router.get('/users/', auth.optional, async (req, res, next) => {
-    const users = await Users.find({});
-    res.json(users)
-});
+const UsersController = require('../../controllers/api/users');
+const GroupsController = require('../../controllers/api/groups');
+const SubjectsController = require('../../controllers/api/subjects');
 
-router.get('/users/:id', auth.optional, async (req, res, next) => {
-    const {params: {id}} = req;
-    const user = await Users.findById(id);
-    if (!user)
-        return next({status: 401, message: 'Токен невірний'});
-    let user_subjects;
-    try {
-        user_subjects = await Subjects.find({_id: user.subjectsID});
-    } catch (e) {
-        user_subjects = null;
-    }
+//--------------------------------------------- Users ----------------------------------------------------------------->
 
-    res.json({user: user, subjects: user_subjects});
-});
+router.get('/users/', auth.optional, UsersController.getUsers);
+router.get('/users/:id', auth.optional, UsersController.getUserByID);
 
-router.delete('/users/:id', auth.optional, async (req, res, next) => {
-    const {params: {id}} = req;
-    const user = await Users.findById(id);
-    await user.delete();
+router.delete('/users/:id', auth.optional, UsersController.deleteUserByID);
+router.delete('/users/:id/subjects/:sub_id', auth.optional, UsersController.deleteSubjectByID);
 
-    res.json({"sucess": true, 'userID': id});
-});
+router.patch('/users/:id', auth.optional, UsersController.updateUserByID);
 
-router.patch('/users/:id', auth.optional, async (req, res, next) => {
-    const {params: {id}} = req;
-    const user = await Users.findById(id);
-    if (!user)
-        return next({status: 401, message: 'Токен невірний'});
+router.put('/users/:id/subjects/:sub_id', auth.optional, UsersController.addSubjectToUser);
 
-    if (req.body.name) {
-        user.setName(req.body.name);
-        user.save();
-        res.json({"success": true, "change": 'name'});
-    }
-    if (req.body.surname) {
-        user.setSurname(req.body.surname);
-        user.save();
-        res.json({"success": true, "change": 'surname'});
-    }
-    if (req.body.phone) {
-        user.setPhone(req.body.phone);
-        user.save();
-        res.json({"success": true, "change": 'phone'});
-    }
-    if (req.body.email) {
-        user.setEmail(req.body.email);
-        user.save();
-        res.json({"success": true, "change": 'email'});
-    }
-    if (req.body.access) {
-        user.setAccess(req.body.access);
-        user.save();
-        res.json({"success": true, "change": 'access'});
-    }
-    if (req.body.password) {
-        user.setPassword(req.body.password);
-        user.save();
-        res.json({"success": true, "change": 'password'});
-    }
+//--------------------------------------------- Groups ---------------------------------------------------------------->
 
-    res.json({"success": true});
-});
+router.get('/groups', auth.optional, GroupsController.getGroups);
 
+router.post('/groups', auth.optional, GroupsController.addNewGroup);
 
-router.delete('/users/:id/subjects/:sub_id', auth.optional, async (req, res, next) => {
-    const {params: {id, sub_id}} = req;
+router.delete('/groups/:id', auth.optional, GroupsController.getGroupByID);
 
-    const user = await Users.findById(id);
-    if (!user)
-        return next({status: 401, message: 'Токен невірний'});
+//--------------------------------------------- Subjects -------------------------------------------------------------->
 
-    try {
-        await user.removeSubjectByID(sub_id);
-        await user.save();
-    } catch (e) {
-        next()
-    }
-
-    const user_subjects = await Subjects.find({_id: user.subjectsID});
-    res.json({"success": true, subjects: user_subjects});
-
-});
-
-router.put('/users/:id/subjects/:sub_id', auth.optional, async (req, res, next) => {
-    const {params: {id, sub_id}} = req;
-    const user = await Users.findById(id);
-    if (!user)
-        return next({status: 401, message: 'Токен невірний'});
-
-    try {
-        await user.addSubjectByID(sub_id);
-        await user.save();
-    } catch (e) {
-        next()
-    }
-    const user_subjects = await Subjects.find({_id: user.subjectsID});
-    res.json({"success": true, subjects: user_subjects});
-});
-
-
-//--------------------------------------------- GROUP ----------------------------------------------------------------->
-
-router.get('/groups', auth.optional, async (req, res, next) => {
-    res.json(await Groups.find({}).sort({number: 1}))
-});
-
-router.delete('/groups/:id', auth.optional, async (req, res, next) => {
-    const {params: {id}} = req;
-    await Groups.remove({_id: id});
-    res.json(await Groups.find({}).sort({number: 1}))
-});
-
-router.post('/groups', auth.optional, async (req, res, next) => {
-    const {body: {group}} = req;
-
-    let count = await Groups.find({number: group}).count();
-    if (count > 0) {
-        res.json({
-            "success": false,
-            "msg": "Група з таким номер вже існує"
-        })
-    } else {
-        const finalGroup = await new Groups({
-            number: group
-        });
-
-        await finalGroup.save();
-
-        res.json({
-            "success": true,
-            "msg": "Групу успішно створено",
-            "groups": await Groups.find({}).sort({number: 1})
-        })
-    }
-
-});
-
-
-//--------------------------------------------- Subject --------------------------------------------------------------->
-router.get('/subjects/', auth.optional, async (req, res, next) => {
-    res.json({subjects: await Subjects.find()});
-});
-
-router.get('/subject/:id', auth.optional, async (req, res, next) => {
-    const {params: {id}} = req;
-
-    const user = await Users.findById(id);
-
-    const user_subjects = await Subjects.find({_id: user.subjectsID});
-
-    res.status(200).render('admin/includes/subjects-form.twig', {subjects: user_subjects});
-});
+router.get('/subjects/', auth.optional, SubjectsController.getSubjects);
+router.get('/subject/:id', auth.optional, SubjectsController.getSubjectByID);
 
 //POST registration new group (optional, everyone has access)
-router.post('/subject/', auth.optional, async (req, res, next) => {
-    const {body: {groupID, title}} = req;
+router.post('/subject/', auth.optional, SubjectsController.addNewSubject);
 
-    if (await Subjects.find({group: groupID, title: title}).count() > 0)
-        return res.json({
-            "success": false,
-            "msg": "Предмет з такою назвою на групою вже зарєестровано"
-        });
+//--------------------------------------------------------------------------------------------------------------------->
 
-    const group = await Groups.findOne({_id: groupID});
-
-    const finalSubject = await new Subjects({
-        groupNumber: group.number,
-        group: groupID,
-        title: title,
-    });
-
-    await finalSubject.save();
-
-    res.json({
-        "success": true,
-        "msg": "Предмет " + finalSubject.title+" успішно створено",
-    })
-});
 module.exports = router;
