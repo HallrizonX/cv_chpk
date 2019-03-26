@@ -13,6 +13,6 @@ router.post('/login', auth.optional, UsersController.login);
 router.get('/logout', auth.optional, UsersController.logout);
 
 //GET current user (required, only authenticated users have access)
-router.get('/current', auth.required, UsersController.current());
+router.get('/current', auth.required, UsersController.current);
 
 module.exports = router;
