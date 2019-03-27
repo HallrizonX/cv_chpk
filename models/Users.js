@@ -13,9 +13,10 @@ const UsersSchema = new Schema({
     surname: String,
     phone: String,
     subjectsID: [],
+    isAdmin: Boolean,
 });
 
-// Set phone number
+/* Set phone number */
 UsersSchema.methods.setPhone = function (phone) {
     this.phone = phone;
 };
@@ -39,6 +40,8 @@ UsersSchema.methods.setSurname = function (surname) {
 UsersSchema.methods.addSubjectByID = function (subjectID) {
     if (this.subjectsID.find(ele => {return ele === subjectID}) === undefined) {
         this.subjectsID.push(subjectID);
+    }else{
+        throw new Error('Предмет вже створено')
     }
 };
 // Remove subject from user

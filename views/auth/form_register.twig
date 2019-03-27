@@ -41,8 +41,7 @@
         </div>
     </form>
 </div>
-<script type="text/javascript">
-
+<script type="text/javascript" charset="UTF-8">
     $(document).ready(function () {
         var formValid = {
             'email': false,
@@ -63,7 +62,7 @@
             }
         });
 
-        // password audit
+        // Password audit
         $('body').on('input', '.register-password', function () {
             if ($(this).val().length > 6) {
                 $(this).removeClass('err-valid-data');
@@ -75,9 +74,9 @@
         });
 
 
-        // name audit
+        // Name audit
         $('body').on('input', '.register-name', function () {
-            if ( nametester.test($(this).val()) ) {
+            if (nametester.test($(this).val())) {
                 $(this).removeClass('err-valid-data');
                 formValid.name = true;
             } else {
@@ -88,7 +87,7 @@
 
         // surname audit
         $('body').on('input', '.register-surname', function () {
-            if ( nametester.test($(this).val()) ) {
+            if (nametester.test($(this).val())) {
                 $(this).removeClass('err-valid-data');
                 formValid.surname = true;
             } else {
@@ -112,7 +111,7 @@
         // Registration
         $('body').on('click', '#register-action', function (e) {
             e.preventDefault();
-            if ( formValid.password && formValid.email && formValid.phone && formValid.name && formValid.surname ) {
+            if (formValid.password && formValid.email && formValid.phone && formValid.name && formValid.surname) {
                 var data = {
                     "user": {
                         "email": $('.register-email').val(),
@@ -125,7 +124,7 @@
 
                 $.ajax({
                     type: "POST",
-                    url: 'api/users/',
+                    url: '/api/users/',
                     dataType: 'json', // I was pretty sure this would do the trick
                     data: JSON.stringify(data),
                     processData: false,
@@ -149,7 +148,7 @@
             }
         });
 
-        var nametester = /^\S[a-zA-Z]*$/;
+        var nametester = /^\S[А-Яа-яa-zA-Z]*$/;
         var phonetester = /^(\+380|380|0)\d{3}\d{2}\d{2}\d{2}$/;
         var tester = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
 
@@ -174,7 +173,6 @@
                 return part.length > 63;
             }))
                 return false;
-
             return true;
         }
 

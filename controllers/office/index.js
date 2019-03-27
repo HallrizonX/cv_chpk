@@ -1,22 +1,16 @@
-const router = require('express').Router();
-const auth = require('../auth');
-
 const User = require('../../utils/User');
+const FactoryOffice = require('./FactoryOffices');
 
-router.get('/', auth.required, async (req, res, next) => {
+exports.officeRender = async (req, res, next) => {
     if (req.cookies.token || req.headers.authorization) {
+        // Get user Object
         const user = await User.getByRequest(req);
         if (!user)
             return res.render('office/notToken.twig', {});
 
-        return res.render('admin/group.twig', {
-            user: user.toAuthJSON(),
-
-        })
+        const office = FactoryOffice.create(user);
+        return res.render(office.template, await office.getContext(req))
     }
 
     return res.render('office/notToken.twig', {});
-});
-
-
-module.exports = router;
+};

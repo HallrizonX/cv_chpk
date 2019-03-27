@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    {% include 'includes/css-required-header.twig' %}
+
+    <link rel='stylesheet' href='/stylesheets/office/main.css' />
+    <link rel='stylesheet' href='/stylesheets/office/files-form.css' />
+
+    {% include 'includes/js-required-header.twig' %}
+</head>
+<body>
+{% include 'includes/header.twig' %}
+
+{% block body %}{% endblock %}
+
+{% include 'includes/js-required-footer.twig' %}
+</body>
+</html>

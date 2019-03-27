@@ -1,4 +1,4 @@
-{% extends 'office/layout.twig' %}
+{% extends 'office/student/layout.twig' %}
 
 {% block body %}
     <a href="/"> <- Back</a>
@@ -9,11 +9,5 @@
     <h5>{{ user.surname }}</h5>
     <h5>{{ user.phone }}</h5>
     <h5>{{ user.access }}</h5>
-
-    {% for file in files %}
-        <img src="{{ file.path }}" width="200">
-    {% endfor %}
-
-    {% include 'includes/teacher-add-files.twig' %}
 
 {% endblock body %}

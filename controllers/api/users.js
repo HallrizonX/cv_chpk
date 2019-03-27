@@ -23,7 +23,7 @@ exports.logout = (req, res, next) => {
 
     req.headers.authorization = "";
     res.clearCookie('token');
-    console.log(authorization);
+    res.clearCookie('adm');
     // Authorization
     res.redirect('/');
 };
@@ -38,6 +38,11 @@ exports.login = (req, res, next) => {
 
         if (passportUser) {
             const user = passportUser;
+
+            if (user.isAdmin === true){
+                res.cookie('adm', process.env.ADM)
+            }
+
             user.token = passportUser.generateJWT();
             return res.json({user: user.toAuthJSON()});
         }
@@ -46,7 +51,7 @@ exports.login = (req, res, next) => {
     })(req, res, next);
 };
 
-/* Adding new user from data post request */
+/* Adding new user from data POST request */
 exports.addNewUser = async (req, res, next) => {
     const {body: {user}} = req;
 
@@ -56,7 +61,7 @@ exports.addNewUser = async (req, res, next) => {
     }
 
     const finalUser = new Users({
-        email: user.email,
+        email: user.email.toLowerCase(),
         password: user.password,
         name: user.name,
         surname: user.surname,
@@ -72,6 +77,30 @@ exports.addNewUser = async (req, res, next) => {
     })
 };
 
+/* ADMIN adding new user from data POST request */
+exports.addNewUserFromAdmin = async (req, res, next) => {
+    const {body} = req;
+
+    if (await Users.findOne({email: body.email})){
+        return next({message: "Користувач з такою поштою вже зареєстрований", status: 401})
+    }
+
+    const finalUser = new Users({
+        email: body.email.toLowerCase(),
+        password: body.password,
+        name: body.name,
+        surname: body.surname,
+        phone: body.phone,
+        access: body.access
+    });
+
+    finalUser.setPassword(body.password);
+    await finalUser.save();
+
+    return res.json({
+        user: finalUser.toAuthJSON()
+    })
+};
 /* Get all users from database */
 exports.getUsers = async (req, res, next) =>{
     const users = await Users.find({});
@@ -109,39 +138,41 @@ exports.updateUserByID = async (req, res, next) => {
     const user = await Users.findById(id);
     if (!user)
         return next({status: 401, message: 'Токен невірний'});
+    try {
 
-    if (req.body.name) {
-        user.setName(req.body.name);
-        user.save();
-        res.json({"success": true, "change": 'name'});
+        if (req.body.name) {
+            await user.setName(req.body.name);
+            await user.save();
+            res.json({"success": true, "change": 'name'});
+        }
+        if (req.body.surname) {
+            await user.setSurname(req.body.surname);
+            await user.save();
+            res.json({"success": true, "change": 'surname'});
+        }
+        if (req.body.phone) {
+            await user.setPhone(req.body.phone);
+            await user.save();
+            res.json({"success": true, "change": 'phone'});
+        }
+        if (req.body.email) {
+            await user.setEmail(req.body.email.toLowerCase());
+            await user.save();
+            res.json({"success": true, "change": 'email'});
+        }
+        if (req.body.access) {
+            await user.setAccess(req.body.access);
+            await user.save();
+            res.json({"success": true, "change": 'access'});
+        }
+        if (req.body.password) {
+            await user.setPassword(req.body.password);
+            await user.save();
+            res.json({"success": true, "change": 'password'});
+        }
+    } catch (e) {
+        res.json({"success": false});
     }
-    if (req.body.surname) {
-        user.setSurname(req.body.surname);
-        user.save();
-        res.json({"success": true, "change": 'surname'});
-    }
-    if (req.body.phone) {
-        user.setPhone(req.body.phone);
-        user.save();
-        res.json({"success": true, "change": 'phone'});
-    }
-    if (req.body.email) {
-        user.setEmail(req.body.email);
-        user.save();
-        res.json({"success": true, "change": 'email'});
-    }
-    if (req.body.access) {
-        user.setAccess(req.body.access);
-        user.save();
-        res.json({"success": true, "change": 'access'});
-    }
-    if (req.body.password) {
-        user.setPassword(req.body.password);
-        user.save();
-        res.json({"success": true, "change": 'password'});
-    }
-
-    res.json({"success": true});
 };
 
 /* Deleting subject by ID in current user */
@@ -175,8 +206,8 @@ exports.addSubjectToUser = async (req, res, next) => {
         await user.addSubjectByID(sub_id);
         await user.save();
     } catch (e) {
-        next()
+        return next({status: 401, message: "Предмет вже зв'язаний з викладачем"})
     }
     const user_subjects = await Subjects.find({_id: user.subjectsID});
     res.json({"success": true, subjects: user_subjects});
-}
+};

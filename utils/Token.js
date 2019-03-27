@@ -18,6 +18,24 @@ class Token {
         return null;
     }
 
+    getTokenAdmin(req) {
+        const {cookies: {adm}} = req;
+
+        if (!adm)
+            throw new Error("Not admin");
+
+
+        const tokenHeaders = Token.getTokenFromHeaders(req);
+        if ( tokenHeaders !== null)
+            return tokenHeaders;
+
+        const tokenCookies = Token.getTokenFromCookies(req);
+        if ( tokenCookies !== null)
+            return tokenCookies;
+
+        return null;
+    }
+
     static getTokenFromHeaders(req) {
         // Get token from headers
         const {headers: {authorization}} = req;

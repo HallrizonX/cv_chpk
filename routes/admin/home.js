@@ -7,7 +7,7 @@ const Groups = mongoose.model('Groups');
 const Subjects = mongoose.model('Subjects');
 const User = require('../../utils/User');
 
-router.get('/', auth.required, async (req, res, next) => {
+router.get('/', auth.optionalAdmin, async (req, res, next) => {
     if (req.cookies.token || req.headers.authorization) {
         const user = await User.getByRequest(req);
         if (!user)
@@ -17,7 +17,7 @@ router.get('/', auth.required, async (req, res, next) => {
 
         const subjects = await Subjects.find();
 
-        return res.render('admin/home.twig', {
+        return res.render('admin/index.twig', {
             user: user.toAuthJSON(),
             users: users,
             subjects: subjects
